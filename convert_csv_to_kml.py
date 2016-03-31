@@ -12,6 +12,7 @@ def convert_csv_to_kml_ployline(fname):
     #Open the file to be written.
     with open( fn + '.kml', 'w') as f:
         print("Start processing " + fname)
+        
         #Writing the kml file.
         f.write("<?xml version='1.0' encoding='UTF-8'?>\n")
         f.write("<kml xmlns='http://earth.google.com/kml/2.1'>\n")
