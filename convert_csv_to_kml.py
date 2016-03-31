@@ -1,7 +1,6 @@
 import csv
 
 def convert_csv_to_kml_ployline(fname):
-    #Input the file name.
     fn = fname.split('.')[0]
     ext = fname.split('.')[1]
     
@@ -36,7 +35,7 @@ def convert_csv_to_kml_ployline(fname):
                     
         f.write("</Document>\n")
         f.write("</kml>\n")
-        f.close()
+
         print "File Created. "
 
 if __name__=="__main__":
