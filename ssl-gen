@@ -37,7 +37,7 @@ fail_if_error() {
 export PASSPHRASE=$(head -c 500 /dev/urandom | tr -dc a-z0-9A-Z | head -c 128; echo)
 
 # Certificate details; replace items in angle brackets with your own info
-subj="/C=$country/ST=$state/L=$locality/O=$organization/OU=$organizationalunit/CN=$commonname/emailAddress=$email"
+subj="/C=$country/ST=$state/L=$locality/O=$organization/OU=$organizationalunit/CN=$DOMAIN/emailAddress=$email"
 
 # Generate the server private key
 openssl genrsa -des3 -out $DOMAIN.key -passout env:PASSPHRASE 4096
