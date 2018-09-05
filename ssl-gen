@@ -13,12 +13,12 @@
 # ssl-gen domain-name
 
 #Change to your company details
-country=CA
-state=AB
-locality=CALGARY
-organization=hzelement
-organizationalunit=hzelement
-email=admin@hzelement.com
+country=XX
+state=XX
+locality=XXXX
+organization=XXX
+organizationalunit=XXX
+email=XXX@XXX.com
 
 DOMAIN="$1"
 if [ -z "$DOMAIN" ]; then
@@ -33,11 +33,23 @@ fail_if_error() {
   }
 }
 
-# Generate a passphrase
-export PASSPHRASE=$(head -c 500 /dev/urandom | tr -dc a-z0-9A-Z | head -c 128; echo)
+ca_str="RootCA" 
+ROOTCA=$DOMAIN$ca_str
 
 # Certificate details; replace items in angle brackets with your own info
 subj="/C=$country/ST=$state/L=$locality/O=$organization/OU=$organizationalunit/CN=$DOMAIN/emailAddress=$email"
+
+# Root CA certificate
+# generate root key
+openssl genrsa -out $ROOTCA.key 4096
+
+# create and sign the root certificate
+openssl req -x509 -new -nodes -key $ROOTCA.key -sha256 -days 1024 -out $ROOTCA.crt -subj "$(echo -n "$subj" | tr "\n" "/")" \
+
+
+# ssl certficate
+# Generate a passphrase
+export PASSPHRASE=$(head -c 500 /dev/urandom | tr -dc a-z0-9A-Z | head -c 128; echo)
 
 # Generate the server private key
 openssl genrsa -des3 -out $DOMAIN.key -passout env:PASSPHRASE 4096
@@ -59,6 +71,13 @@ fail_if_error $?
 openssl rsa -in $DOMAIN.key.org -out $DOMAIN.key -passin env:PASSPHRASE
 fail_if_error $?
 
+# remove original key
+rm $DOMAIN.key.org
+
 # Generate the cert (good for 10 years)
-openssl x509 -req -days 3650 -in $DOMAIN.csr -signkey $DOMAIN.key -out $DOMAIN.crt
+# openssl x509 -req -days 3650 -in $DOMAIN.csr -signkey $DOMAIN.key -out $DOMAIN.crt
+# fail_if_error $?
+
+
+openssl x509 -req -in $DOMAIN.csr -CA $ROOTCA.crt -CAkey $ROOTCA.key -CAcreateserial -out $DOMAIN.crt -days 3650 -sha256
 fail_if_error $?
