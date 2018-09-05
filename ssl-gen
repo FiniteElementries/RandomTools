@@ -39,12 +39,14 @@ ROOTCA=$DOMAIN$ca_str
 # Certificate details; replace items in angle brackets with your own info
 subj="/C=$country/ST=$state/L=$locality/O=$organization/OU=$organizationalunit/CN=$DOMAIN/emailAddress=$email"
 
+casubj="/C=$country/ST=$state/L=$locality/O=$organization/OU=$organizationalunit/CN=$ROOTCA/emailAddress=$email"
+
 # Root CA certificate
 # generate root key
 openssl genrsa -out $ROOTCA.key 4096
 
 # create and sign the root certificate
-openssl req -x509 -new -nodes -key $ROOTCA.key -sha256 -days 1024 -out $ROOTCA.crt -subj "$(echo -n "$subj" | tr "\n" "/")" \
+openssl req -x509 -new -nodes -key $ROOTCA.key -sha256 -days 1024 -out $ROOTCA.crt -subj "$(echo -n "$casubj" | tr "\n" "/")" \
 
 
 # ssl certficate
@@ -56,7 +58,7 @@ openssl genrsa -des3 -out $DOMAIN.key -passout env:PASSPHRASE 4096
 fail_if_error $?
 
 # Generate the CSR
-openssl req \
+openssl req -sha256 \
     -new \
     -batch \
     -subj "$(echo -n "$subj" | tr "\n" "/")" \
